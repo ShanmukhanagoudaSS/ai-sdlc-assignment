@@ -98,11 +98,23 @@ import { InputType } from '../../models/review.models';
         </div>
 
         <!-- Submit -->
-        <div class="mt-4 d-flex justify-content-end">
-          <button class="btn-sap-primary submit-btn" [disabled]="loading || !canSubmit" (click)="submit()">
-            <span *ngIf="!loading"><i class="bi bi-search"></i> Analyze Code</span>
-            <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span> Analyzing…</span>
+        <div class="mt-4">
+          <button class="submit-btn" [class.loading]="loading" [disabled]="loading || !canSubmit" (click)="submit()">
+            <span class="btn-content" *ngIf="!loading">
+              <i class="bi bi-search"></i> Analyze Code
+            </span>
+            <span class="btn-content" *ngIf="loading">
+              <span class="dot-wave">
+                <span></span><span></span><span></span>
+              </span>
+              Analyzing your code…
+            </span>
+            <div class="progress-bar-fill" *ngIf="loading"></div>
           </button>
+          <div class="analyzing-hint" *ngIf="loading">
+            <i class="bi bi-cpu-fill pulse-icon"></i>
+            Claude is reviewing your diff for security issues, bugs, and code quality…
+          </div>
         </div>
       </div>
 
@@ -147,10 +159,10 @@ import { InputType } from '../../models/review.models';
 
     .input-type-toggle {
       display: flex; gap: 4px;
-      background: #f0f4f9; border-radius: 10px; padding: 4px;
+      background: #f0f4f9; border-radius: 16px; padding: 4px;
     }
     .toggle-btn {
-      flex: 1; padding: 10px 16px; border: none; border-radius: 8px;
+      flex: 1; padding: 10px 16px; border: none; border-radius: 12px;
       background: transparent; color: #556070; font-size: 13px; font-weight: 600;
       cursor: pointer; transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 7px;
     }
@@ -161,7 +173,7 @@ import { InputType } from '../../models/review.models';
     .upload-btn {
       display: inline-flex; align-items: center; gap: 7px;
       padding: 8px 18px; background: #e8f4fd; color: #0070f2;
-      border: 1.5px solid #0070f2; border-radius: 8px;
+      border: 1.5px solid #0070f2; border-radius: 24px;
       cursor: pointer; font-size: 13px; font-weight: 600; transition: all .15s;
     }
     .upload-btn:hover { background: #0070f2; color: #fff; }
@@ -170,12 +182,12 @@ import { InputType } from '../../models/review.models';
     .textarea-wrapper { position: relative; }
     .diff-textarea {
       width: 100%; padding: 14px 16px;
-      border: 1.5px solid #d4dce6; border-radius: 10px;
+      border: 1.5px solid #d4dce6; border-radius: 16px;
       font-family: 'Fira Code', 'Cascadia Code', monospace; font-size: 12px;
       line-height: 1.6; resize: vertical; background: #fafbfc;
       transition: border-color .2s; box-sizing: border-box;
     }
-    .diff-textarea:focus { outline: none; border-color: #0070f2; background: #fff; box-shadow: 0 0 0 3px rgba(0,112,242,.1); }
+    .diff-textarea:focus { outline: none; border-color: #0070f2; background: #fff; box-shadow: 0 0 0 4px rgba(0,112,242,.08); }
     .textarea-hint {
       position: absolute; bottom: 12px; right: 12px;
       font-size: 11px; color: #556070; display: flex; align-items: center; gap: 4px;
@@ -189,10 +201,10 @@ import { InputType } from '../../models/review.models';
     }
     .pr-input {
       width: 100%; padding: 12px 14px 12px 44px;
-      border: 1.5px solid #d4dce6; border-radius: 10px; font-size: 14px;
+      border: 1.5px solid #d4dce6; border-radius: 16px; font-size: 14px;
       transition: border-color .2s; background: #fafbfc; box-sizing: border-box;
     }
-    .pr-input:focus { outline: none; border-color: #0070f2; background: #fff; box-shadow: 0 0 0 3px rgba(0,112,242,.1); }
+    .pr-input:focus { outline: none; border-color: #0070f2; background: #fff; box-shadow: 0 0 0 4px rgba(0,112,242,.08); }
 
     .info-box {
       background: #e8f4fd; border: 1px solid #b3d6f5; border-radius: 8px;
@@ -207,11 +219,84 @@ import { InputType } from '../../models/review.models';
       display: flex; align-items: center; gap: 8px;
     }
 
-    .submit-btn { min-width: 180px; justify-content: center; font-size: 15px; padding: 13px 32px; }
+    .submit-btn {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      padding: 14px 32px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Google Sans', sans-serif;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #0070f2 0%, #0854a0 100%);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(0,112,242,.35);
+      transition: background .3s, box-shadow .3s, transform .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .submit-btn:hover:not(:disabled):not(.loading) {
+      background: linear-gradient(135deg, #0854a0 0%, #063e78 100%);
+      box-shadow: 0 6px 20px rgba(0,112,242,.45);
+      transform: translateY(-1px);
+    }
+    .submit-btn:disabled:not(.loading) { opacity: .5; cursor: not-allowed; }
+    .submit-btn.loading {
+      background: linear-gradient(135deg, #0070f2 0%, #0f828f 100%);
+      cursor: not-allowed;
+      box-shadow: 0 4px 14px rgba(0,112,242,.25);
+    }
+    .btn-content { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+
+    /* Animated progress bar that sweeps across the button */
+    .progress-bar-fill {
+      position: absolute;
+      bottom: 0; left: -100%; height: 4px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent);
+      animation: sweep 1.6s ease-in-out infinite;
+      border-radius: 0 0 24px 24px;
+    }
+    @keyframes sweep {
+      0%   { left: -100%; }
+      100% { left: 100%;  }
+    }
+
+    /* Bouncing dots */
+    .dot-wave { display: flex; align-items: center; gap: 4px; }
+    .dot-wave span {
+      display: inline-block; width: 7px; height: 7px;
+      background: #fff; border-radius: 50%;
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .dot-wave span:nth-child(2) { animation-delay: .2s; }
+    .dot-wave span:nth-child(3) { animation-delay: .4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(1);   opacity: .7; }
+      40%            { transform: scale(1.4); opacity: 1;  }
+    }
+
+    /* Hint text below button */
+    .analyzing-hint {
+      margin-top: 12px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: #0070f2; font-weight: 500;
+      animation: fadeIn .4s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .pulse-icon { animation: pulse 1.4s ease-in-out infinite; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1);    }
+      50%       { opacity: .6; transform: scale(1.15); }
+    }
 
     .feature-card {
-      background: #fff; border: 1px solid #d4dce6; border-radius: 10px;
-      padding: 18px 16px; transition: all .2s;
+      background: #fff; border: 1px solid #d4dce6; border-radius: 18px;
+      padding: 20px 18px; transition: all .2s;
     }
     .feature-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,112,242,.12); border-color: #0070f2; }
     .feature-icon {

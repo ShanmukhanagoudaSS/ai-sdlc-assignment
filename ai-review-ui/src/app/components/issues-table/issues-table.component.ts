@@ -91,7 +91,7 @@ import { ReviewIssue, Severity, IssueCategory } from '../../models/review.models
 
     .issue-item {
       border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
+      border-radius: 18px;
       overflow: hidden;
       transition: border-color .2s, box-shadow .2s;
       background: #fff;
@@ -129,7 +129,7 @@ import { ReviewIssue, Severity, IssueCategory } from '../../models/review.models
     }
     .issue-desc { font-size: 13px; color: #374151; line-height: 1.8; margin-bottom: 14px; }
     .suggestion-box {
-      background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px;
       padding: 14px 16px; font-size: 13px; color: #92400e; line-height: 1.7;
     }
     .suggestion-label { font-weight: 700; display: flex; align-items: center; gap: 5px; margin-bottom: 6px; color: #b45309; font-size: 12px; }

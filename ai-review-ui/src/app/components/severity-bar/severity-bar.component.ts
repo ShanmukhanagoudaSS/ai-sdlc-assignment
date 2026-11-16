@@ -24,7 +24,7 @@ import { GateResult } from '../../models/review.models';
   styles: [`
     .counts-row { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
     .count-badge {
-      flex: 1; min-width: 90px; border-radius: 12px; padding: 18px 14px;
+      flex: 1; min-width: 90px; border-radius: 18px; padding: 18px 14px;
       display: flex; flex-direction: column; align-items: center; border: 2px solid transparent;
     }
     .num { font-size: 32px; font-weight: 800; line-height: 1; }

@@ -69,7 +69,7 @@ body {
 // Cards
 .sap-card {
   background: var(--card-bg);
-  border-radius: 14px;
+  border-radius: 20px;
   border: 1px solid var(--border);
   box-shadow: 0 2px 12px rgba(0,112,242,.06);
   padding: 28px 32px;
@@ -93,7 +93,7 @@ body {
   background: linear-gradient(135deg, var(--sap-blue) 0%, var(--sap-blue-dark) 100%);
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 24px;
   padding: 11px 28px;
   font-size: 14px;
   font-weight: 600;
@@ -116,7 +116,7 @@ body {
   background: transparent;
   color: var(--sap-blue);
   border: 1.5px solid var(--sap-blue);
-  border-radius: 8px;
+  border-radius: 24px;
   padding: 7px 18px;
   font-size: 13px;
   font-weight: 600;
