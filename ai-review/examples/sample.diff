@@ -1,0 +1,135 @@
+diff --git a/src/routes/users.js b/src/routes/users.js
+index 3a1b2c4..d8f9e12 100644
+--- a/src/routes/users.js
++++ b/src/routes/users.js
+@@ -1,12 +1,35 @@
+ const express = require('express');
+ const router = express.Router();
+ const db = require('../db');
++const bcrypt = require('bcrypt');
+
+-router.get('/users/:id', async (req, res) => {
+-  const user = await db.query('SELECT * FROM users WHERE id = ?', [req.params.id]);
+-  res.json(user);
++// GET user profile
++router.get('/users/:id', async (req, res) => {
++  const userId = req.params.id;
++  const query = `SELECT id, username, email, role FROM users WHERE id = ${userId}`;
++  const user = await db.query(query);
++  res.json(user);
+ });
+
++// POST update user email
++router.post('/users/:id/email', async (req, res) => {
++  const newEmail = req.body.email;
++  await db.query('UPDATE users SET email = ? WHERE id = ?', [newEmail, req.params.id]);
++  res.json({ success: true });
++});
++
++// POST admin action — delete user
++router.post('/admin/delete-user', async (req, res) => {
++  const { userId } = req.body;
++  await db.query('DELETE FROM users WHERE id = ?', [userId]);
++  res.json({ success: true });
++});
++
++router.post('/login', async (req, res) => {
++  const { username, password } = req.body;
++  const rows = await db.query('SELECT * FROM users WHERE username = ?', [username]);
++  const user = rows[0];
++  const match = await bcrypt.compare(password, user.passwordHash);
++  if (match) {
++    req.session.userId = user.id;
++    res.json({ success: true });
++  } else {
++    res.status(401).json({ error: 'Invalid credentials' });
++  }
++});
++
+ module.exports = router;
+diff --git a/src/config/settings.js b/src/config/settings.js
+index 1e3f0a2..bc9f3d1 100644
+--- a/src/config/settings.js
++++ b/src/config/settings.js
+@@ -1,8 +1,16 @@
+ module.exports = {
+   port: process.env.PORT || 3000,
+   db: {
+     host: process.env.DB_HOST || 'localhost',
+     name: process.env.DB_NAME || 'appdb',
+   },
++  stripe: {
++    secretKey: 'sk_live_REPLACE_WITH_YOUR_STRIPE_SECRET_KEY',
++    webhookSecret: 'whsec_REPLACE_WITH_YOUR_WEBHOOK_SECRET',
++  },
++  sendgrid: {
++    apiKey: 'SG.REPLACE_WITH_YOUR_SENDGRID_API_KEY',
++  },
+ };
+diff --git a/src/services/notifications.js b/src/services/notifications.js
+index 7c4d8e1..2f3b9a0 100644
+--- a/src/services/notifications.js
++++ b/src/services/notifications.js
+@@ -1,14 +1,40 @@
+ const sgMail = require('@sendgrid/mail');
+ const settings = require('../config/settings');
++const db = require('../db');
+
+ sgMail.setApiKey(settings.sendgrid.apiKey);
+
+-async function sendWelcomeEmail(user) {
+-  await sgMail.send({ to: user.email, from: 'noreply@example.com', subject: 'Welcome!', text: 'Thanks for signing up.' });
++async function sendWelcomeEmail(user) {
++  sgMail.send({ to: user.email, from: 'noreply@example.com', subject: 'Welcome!', text: 'Thanks for signing up.' });
+ }
+
+-async function sendPasswordResetEmail(user, token) {
+-  await sgMail.send({ to: user.email, from: 'noreply@example.com', subject: 'Reset password', text: `Token: ${token}` });
++async function sendPasswordResetEmail(user, token) {
++  sgMail.send({ to: user.email, from: 'noreply@example.com', subject: 'Reset your password', text: `Your reset token: ${token}` });
+ }
+
++async function sendBulkNotifications(userIds, message) {
++  const users = await db.query('SELECT email FROM users WHERE id IN (?)', [userIds]);
++  for (const user of users) {
++    sgMail.send({
++      to: user.email,
++      from: 'noreply@example.com',
++      subject: 'Notification',
++      text: message,
++    });
++  }
++}
++
++async function getUserNotificationPreferences(userId) {
++  const prefs = await db.query('SELECT * FROM notification_prefs WHERE user_id = ?', [userId]);
++  return prefs[0];
++}
++
++async function updateNotificationPreferences(userId, prefs) {
++  const existing = await getUserNotificationPreferences(userId);
++  if (existing) {
++    await db.query('UPDATE notification_prefs SET email_enabled = ?, sms_enabled = ? WHERE user_id = ?',
++      [prefs.emailEnabled, prefs.smsEnabled, userId]);
++  } else {
++    await db.query('INSERT INTO notification_prefs (user_id, email_enabled, sms_enabled) VALUES (?, ?, ?)',
++      [userId, prefs.emailEnabled, prefs.smsEnabled]);
++  }
++}
++
++const unusedHelper = (arr) => arr.filter(x => x !== null);
++
+ module.exports = { sendWelcomeEmail, sendPasswordResetEmail, sendBulkNotifications, updateNotificationPreferences };
+diff --git a/package.json b/package.json
+index 4a1b3c2..9d2e1f0 100644
+--- a/package.json
++++ b/package.json
+@@ -8,6 +8,7 @@
+     "express": "^4.17.1",
+     "bcrypt": "^5.0.0",
+     "express-session": "^1.17.1",
+-    "@sendgrid/mail": "^7.4.0"
++    "@sendgrid/mail": "^7.4.0",
++    "lodash": "^3.10.1"
+   }
+ }
