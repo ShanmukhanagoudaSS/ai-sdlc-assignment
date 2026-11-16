@@ -11,74 +11,124 @@ import { IssuesTableComponent } from '../../components/issues-table/issues-table
   standalone: true,
   imports: [CommonModule, VerdictBadgeComponent, SeverityBarComponent, IssuesTableComponent],
   template: `
-    <div class="page">
-      <div class="container" *ngIf="data; else noData">
+    <!-- Navbar -->
+    <nav class="app-navbar">
+      <a class="brand">
+        <span class="brand-icon"><i class="bi bi-code-slash"></i></span>
+        AI Code Review
+      </a>
+      <button class="btn-new" (click)="newReview()">
+        <i class="bi bi-plus-lg"></i> New Review
+      </button>
+    </nav>
 
-        <!-- Header -->
-        <div class="card header-card">
-          <div class="header-top">
-            <h1>AI Code Review Report</h1>
-            <button class="new-btn" (click)="newReview()">+ New Review</button>
+    <div *ngIf="data; else noData">
+      <!-- Report header banner -->
+      <div class="report-banner">
+        <div class="container-xl px-4">
+          <div class="banner-top">
+            <div class="banner-tag"><i class="bi bi-file-earmark-diff"></i> Review Complete</div>
+            <h2 class="banner-title">Code Review Report</h2>
+            <div class="meta-chips">
+              <span class="meta-chip"><i class="bi bi-file-earmark-code"></i> {{ data.result.diffStats.filesChanged }} file(s)</span>
+              <span class="meta-chip added"><i class="bi bi-plus-lg"></i> {{ data.result.diffStats.linesAdded }} added</span>
+              <span class="meta-chip removed"><i class="bi bi-dash-lg"></i> {{ data.result.diffStats.linesRemoved }} removed</span>
+              <span class="meta-chip"><i class="bi bi-clock"></i> {{ formatDate(data.result.reviewedAt) }}</span>
+              <span class="meta-chip"><i class="bi bi-cpu"></i> {{ data.result.model }}</span>
+            </div>
           </div>
-          <div class="meta-row">
-            <span class="meta-item">📄 <strong>{{ data.result.diffStats.filesChanged }}</strong> file(s) changed</span>
-            <span class="meta-item added">+{{ data.result.diffStats.linesAdded }} added</span>
-            <span class="meta-item removed">-{{ data.result.diffStats.linesRemoved }} removed</span>
-            <span class="meta-item">🕐 {{ formatDate(data.result.reviewedAt) }}</span>
-            <span class="meta-item">🤖 {{ data.result.model }}</span>
+          <div class="banner-verdict">
+            <app-verdict-badge [gate]="data.gate" />
           </div>
-          <app-verdict-badge [gate]="data.gate" />
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="container-xl px-4 pb-5 pt-4">
+
+        <!-- Summary + Severity row -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-5">
+            <div class="sap-card h-100">
+              <div class="sap-card-title"><i class="bi bi-chat-square-text-fill"></i> AI Summary</div>
+              <p class="summary-text">{{ data.result.summary }}</p>
+            </div>
+          </div>
+          <div class="col-lg-7">
+            <div class="sap-card h-100">
+              <app-severity-bar [gate]="data.gate" />
+            </div>
+          </div>
         </div>
 
-        <!-- Summary -->
-        <div class="card">
-          <p class="card-title">Summary</p>
-          <p class="summary-text">{{ data.result.summary }}</p>
-        </div>
-
-        <!-- Severity bar -->
-        <div class="card">
-          <app-severity-bar [gate]="data.gate" />
-        </div>
-
-        <!-- Issues table -->
-        <div class="card">
+        <!-- Issues -->
+        <div class="sap-card">
           <app-issues-table [issues]="data.result.issues" />
         </div>
 
-        <footer>
-          Powered by {{ data.result.model }} via AI Code Review &mdash; {{ formatDate(data.result.reviewedAt) }}
+        <footer class="report-footer">
+          <i class="bi bi-cpu"></i> Powered by {{ data.result.model }} &mdash;
+          <i class="bi bi-clock"></i> {{ formatDate(data.result.reviewedAt) }}
         </footer>
       </div>
-
-      <ng-template #noData>
-        <div class="no-data">
-          <p>No review data found.</p>
-          <button class="new-btn" (click)="newReview()">← Go back</button>
-        </div>
-      </ng-template>
     </div>
+
+    <ng-template #noData>
+      <div class="no-data-state">
+        <i class="bi bi-file-earmark-x"></i>
+        <p>No review data found.</p>
+        <button class="btn-sap-primary" (click)="newReview()"><i class="bi bi-arrow-left"></i> Go Back</button>
+      </div>
+    </ng-template>
   `,
   styles: [`
-    .page { min-height: 100vh; background: #f5f5f5; padding: 24px 16px; }
-    .container { max-width: 1100px; margin: 0 auto; }
-    .card { background: #fff; border-radius: 10px; padding: 24px 28px; margin-bottom: 16px;
-            box-shadow: 0 1px 4px rgba(0,0,0,.07); }
-    .header-card { }
-    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    h1 { font-size: 22px; font-weight: 800; color: #111; }
-    .new-btn { padding: 8px 18px; background: #111; color: #fff; border: none; border-radius: 8px;
-               cursor: pointer; font-size: 13px; font-weight: 600; }
-    .new-btn:hover { background: #333; }
-    .meta-row { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: #555; margin-bottom: 20px; }
-    .meta-item { display: flex; align-items: center; gap: 4px; }
-    .added   { color: #16a34a; }
-    .removed { color: #dc2626; }
-    .card-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: #888; margin-bottom: 10px; }
-    .summary-text { font-size: 14px; color: #333; line-height: 1.7; }
-    footer { text-align: center; font-size: 12px; color: #9ca3af; margin-top: 16px; padding: 16px; }
-    .no-data { display: flex; flex-direction: column; align-items: center; justify-content: center;
-               min-height: 60vh; gap: 16px; font-size: 16px; color: #666; }
+    .btn-new {
+      background: rgba(255,255,255,.15); color: #fff;
+      border: 1.5px solid rgba(255,255,255,.4); border-radius: 8px;
+      padding: 7px 18px; font-size: 13px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all .2s; font-family: 'Google Sans', sans-serif;
+    }
+    .btn-new:hover { background: rgba(255,255,255,.25); }
+
+    .report-banner {
+      background: linear-gradient(135deg, #0854a0 0%, #0070f2 60%, #0f828f 100%);
+      padding: 28px 0 40px;
+      margin-bottom: -20px;
+    }
+    .banner-top { margin-bottom: 16px; }
+    .banner-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.15); color: #fff; padding: 4px 12px;
+      border-radius: 20px; font-size: 11px; font-weight: 600; margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,.25);
+    }
+    .banner-title { color: #fff; font-size: 26px; font-weight: 800; margin-bottom: 12px; font-family: 'Google Sans', sans-serif; }
+    .meta-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .meta-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,.15); color: rgba(255,255,255,.9);
+      padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+      border: 1px solid rgba(255,255,255,.2);
+    }
+    .meta-chip.added   { background: rgba(16,126,62,.35);  border-color: rgba(16,126,62,.5); }
+    .meta-chip.removed { background: rgba(187,0,0,.35);    border-color: rgba(187,0,0,.5);   }
+    .banner-verdict { margin-top: 16px; }
+
+    .summary-text { font-size: 14px; color: #374151; line-height: 1.8; }
+
+    .report-footer {
+      text-align: center; font-size: 12px; color: #9ba8b5;
+      margin-top: 8px; padding: 16px;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+
+    .no-data-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 60vh; gap: 16px;
+      font-size: 16px; color: #556070;
+      i { font-size: 56px; color: #d4dce6; }
+    }
   `]
 })
 export class ReportPage implements OnInit {
@@ -86,7 +136,7 @@ export class ReportPage implements OnInit {
 
   constructor(private router: Router) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     const state = history.state as { data?: ReviewResponse };
     if (state?.data) {
       this.data = state.data;
@@ -95,11 +145,6 @@ export class ReportPage implements OnInit {
     }
   }
 
-  formatDate(iso: string): string {
-    return new Date(iso).toLocaleString();
-  }
-
-  newReview(): void {
-    this.router.navigate(['/']);
-  }
+  formatDate(iso: string) { return new Date(iso).toLocaleString(); }
+  newReview() { this.router.navigate(['/']); }
 }

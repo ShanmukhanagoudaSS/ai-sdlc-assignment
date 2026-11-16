@@ -1,1 +1,196 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700;800&family=Google+Sans+Mono&display=swap');
+
+// SAP Blue theme variables
+:root {
+  --sap-blue:        #0070f2;
+  --sap-blue-dark:   #0854a0;
+  --sap-blue-light:  #e8f4fd;
+  --sap-blue-mid:    #d1e8fb;
+  --sap-teal:        #0f828f;
+  --sap-green:       #107e3e;
+  --sap-orange:      #e76500;
+  --sap-red:         #bb0000;
+  --sap-yellow:      #e9730c;
+  --bg:              #f0f4f9;
+  --card-bg:         #ffffff;
+  --text-primary:    #1a1a2e;
+  --text-muted:      #556070;
+  --border:          #d4dce6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+// Navbar
+.app-navbar {
+  background: linear-gradient(135deg, var(--sap-blue-dark) 0%, var(--sap-blue) 100%);
+  padding: 0 24px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0,112,242,.25);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .3px;
+    text-decoration: none;
+    font-family: 'Google Sans', sans-serif;
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+  }
+}
+
+// Cards
+.sap-card {
+  background: var(--card-bg);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 12px rgba(0,112,242,.06);
+  padding: 28px 32px;
+  margin-bottom: 0;
+}
+
+.sap-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--sap-blue);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+// Buttons
+.btn-sap-primary {
+  background: linear-gradient(135deg, var(--sap-blue) 0%, var(--sap-blue-dark) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 11px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 3px 10px rgba(0,112,242,.3);
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--sap-blue-dark) 0%, #063e78 100%);
+    box-shadow: 0 4px 16px rgba(0,112,242,.4);
+    transform: translateY(-1px);
+  }
+  &:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+}
+
+.btn-sap-outline {
+  background: transparent;
+  color: var(--sap-blue);
+  border: 1.5px solid var(--sap-blue);
+  border-radius: 8px;
+  padding: 7px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &:hover { background: var(--sap-blue-light); }
+}
+
+// Severity & category badges
+.sev-badge, .cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  letter-spacing: .3px;
+}
+
+// Filter chips
+.filter-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  &:hover { border-color: var(--sap-blue); color: var(--sap-blue); background: var(--sap-blue-light); }
+  &.active {
+    background: var(--sap-blue);
+    border-color: var(--sap-blue);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0,112,242,.3);
+  }
+}
+
+// Scrollbar
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #f0f4f9; }
+::-webkit-scrollbar-thumb { background: #b0c4d8; border-radius: 3px; }
+
+// Headings — bold, Google Sans, 18px base (components override where needed)
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Google Sans', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+}
+// Page-level h1 stays large
+h1.display { font-size: 36px; }
+
+// Full width layout
+.container-xl {
+  max-width: 1400px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+// Ensure sections stretch full width
+section, .hero-section, .report-banner {
+  width: 100%;
+}
